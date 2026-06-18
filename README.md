@@ -51,7 +51,7 @@ Flashlite intentionally does not include framework hooks, inventory hooks, usabl
 
 ## Expanded Version
 
-DaveDev Flashlight is the expanded version for servers that need framework support, inventory item use, custom bridges, public APIs, advanced integrations, bundled SFX, and support tooling.
+"DaveDev Immersive Flashlight" ([DaveDev Store Link](https://davedev.tebex.io/package/immersive-flashlight)) is the expanded version for servers that need framework support, inventory item use, custom bridges, public APIs, advanced integrations, bundled SFX, and support tooling.
 
 ## License
 
