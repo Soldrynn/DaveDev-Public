@@ -68,6 +68,15 @@ FlashliteConfig = {
     reattachIntervalMs = 400,
   },
 
+  anim = {
+    hold = {
+      dict = 'flashlightanim@walk@base',
+      name = 'base',
+      flags = 51,
+      restartDelayMs = 1200,
+    },
+  },
+
   audio = {
     enabled = true,
     on = {

@@ -226,6 +226,8 @@ local STATE = {
   prev = { canUseWeapons=nil },
   _lastNet=nil,
   animPlaying=false,
+  holdAnimLostAt=0,
+  holdAnimLightReadyAt=0,
   lightOn=false,
   lastUsePayload=nil,
   lastAnimCheck=0,
@@ -332,6 +334,9 @@ end
 local holdAnimCfg = (cfg.anim and cfg.anim.hold) or cfg.anim or {}
 local HOLD_ANIM_DICT = holdAnimCfg.dict or 'flashlightanim@walk@base'
 local HOLD_ANIM_NAME = holdAnimCfg.name or 'base'
+local HOLD_ANIM_FLAGS = holdAnimCfg.flags or 51
+local HOLD_ANIM_RESTART_DELAY_MS = holdAnimCfg.restartDelayMs or 1200
+local HOLD_ANIM_LIGHT_RESUME_DELAY_MS = 100
 local TAKE_OUT = { dict = 'amb@world_human_smoking@male@male_a@enter', anim = 'enter', flags = 51 }
 local PUT_AWAY = { dict = 'amb@world_human_stand_mobile@male@text@exit', anim = 'exit', flags = 51 }
 
@@ -477,6 +482,14 @@ local function computeTargetRelAngles(ped)
          clamp(pitch, -PITCH_LIMIT, PITCH_LIMIT)
 end
 
+local function playHoldAnim(ped)
+  ensureAnim(HOLD_ANIM_DICT)
+  TaskPlayAnim(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 2.0, -2.0, -1, HOLD_ANIM_FLAGS, 0.0, false, false, false)
+  STATE.animPlaying = true
+  STATE.holdAnimLostAt = 0
+  STATE.holdAnimLightReadyAt = 0
+end
+
 local function runOwnerLoop()
 CreateThread(function()
   local frameTime, now, ped, boneIndex
@@ -490,10 +503,21 @@ CreateThread(function()
 
     if ped and now - STATE.lastAnimCheck >= animCheckInterval then
       STATE.lastAnimCheck = now
-      if not IsEntityPlayingAnim(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 3) then
-        ensureAnim(HOLD_ANIM_DICT)
-        TaskPlayAnim(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 2.0, -2.0, -1, 51, 0.0, false, false, false)
+      if IsEntityPlayingAnim(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 3) then
+        if STATE.holdAnimLostAt ~= 0 then
+          STATE.holdAnimLightReadyAt = now + HOLD_ANIM_LIGHT_RESUME_DELAY_MS
+        end
         STATE.animPlaying = true
+        STATE.holdAnimLostAt = 0
+      else
+        STATE.animPlaying = false
+        STATE.holdAnimLightReadyAt = 0
+        if STATE.holdAnimLostAt == 0 then
+          STATE.holdAnimLostAt = now
+        elseif now - STATE.holdAnimLostAt >= HOLD_ANIM_RESTART_DELAY_MS then
+          playHoldAnim(ped)
+          STATE.holdAnimLostAt = now
+        end
       end
     end
 
@@ -531,39 +555,51 @@ CreateThread(function()
       end
     end
 
-      local rx = ATTACH_ROT_X + STATE.relYaw * YAW_SCALE
-      local rz = ATTACH_ROT_Z + STATE.relPitch * PITCH_SCALE
-      local needReattach = false
-      if REATTACH_EVERY_FRAME then
-        needReattach = true
-      else
-        if (not STATE._apYaw) or (math.abs(rx - STATE._apYaw) > 0.05) or (math.abs(rz - STATE._apPitch) > 0.05) then
-          needReattach = true
-        elseif now - lastForcedReattach > REATTACH_INTERVAL_MS then
-          needReattach = true
-        end
+      local holdAnimInterrupted = STATE.holdAnimLostAt ~= 0
+      local holdLightSuppressed = holdAnimInterrupted or (STATE.holdAnimLightReadyAt ~= 0 and now < STATE.holdAnimLightReadyAt)
+      if STATE.holdAnimLightReadyAt ~= 0 and now >= STATE.holdAnimLightReadyAt then
+        STATE.holdAnimLightReadyAt = 0
       end
-      if needReattach then
-        local rotPivot = rotateZYX(PIVOT_LOCAL, deg2rad(rx), deg2rad(ATTACH_ROT_Y), deg2rad(rz))
-        local attachPos = vector3(ATTACH_POS_X, ATTACH_POS_Y, ATTACH_POS_Z)
-        local posComp = attachPos + (PIVOT_LOCAL - rotPivot)
-        if ALT_ROTATION_MODE and STATE.prop and DoesEntityExist(STATE.prop) then
-          if not boneIndex then boneIndex = GetPedBoneIndex(ped, HAND_BONE_ID) end
-          if boneIndex and boneIndex ~= -1 then
-            local boneWorld = GetWorldPositionOfEntityBone(ped, boneIndex)
-            if boneWorld then
-              local dx = boneWorld.x + posComp.x
-              local dy = boneWorld.y + posComp.y
-              local dz = boneWorld.z + posComp.z
-              SetEntityCoordsNoOffset(STATE.prop, dx, dy, dz, false,false,false)
-              SetEntityRotation(STATE.prop, rx, ATTACH_ROT_Y, rz, 2, true)
-            end
-          end
+
+      if STATE.corona and STATE.corona ~= 0 and DoesEntityExist(STATE.corona) then
+        SetEntityVisible(STATE.corona, STATE.lightOn and not holdLightSuppressed, 0)
+      end
+
+      if not holdAnimInterrupted then
+        local rx = ATTACH_ROT_X + STATE.relYaw * YAW_SCALE
+        local rz = ATTACH_ROT_Z + STATE.relPitch * PITCH_SCALE
+        local needReattach = false
+        if REATTACH_EVERY_FRAME then
+          needReattach = true
         else
-          attachToBoneCached(ped, STATE.prop, boneIndex, posComp.x, posComp.y, posComp.z, rx, ATTACH_ROT_Y, rz)
+          if (not STATE._apYaw) or (math.abs(rx - STATE._apYaw) > 0.05) or (math.abs(rz - STATE._apPitch) > 0.05) then
+            needReattach = true
+          elseif now - lastForcedReattach > REATTACH_INTERVAL_MS then
+            needReattach = true
+          end
         end
-        STATE._apYaw, STATE._apPitch = rx, rz
-        lastForcedReattach = now
+        if needReattach then
+          local rotPivot = rotateZYX(PIVOT_LOCAL, deg2rad(rx), deg2rad(ATTACH_ROT_Y), deg2rad(rz))
+          local attachPos = vector3(ATTACH_POS_X, ATTACH_POS_Y, ATTACH_POS_Z)
+          local posComp = attachPos + (PIVOT_LOCAL - rotPivot)
+          if ALT_ROTATION_MODE and STATE.prop and DoesEntityExist(STATE.prop) then
+            if not boneIndex then boneIndex = GetPedBoneIndex(ped, HAND_BONE_ID) end
+            if boneIndex and boneIndex ~= -1 then
+              local boneWorld = GetWorldPositionOfEntityBone(ped, boneIndex)
+              if boneWorld then
+                local dx = boneWorld.x + posComp.x
+                local dy = boneWorld.y + posComp.y
+                local dz = boneWorld.z + posComp.z
+                SetEntityCoordsNoOffset(STATE.prop, dx, dy, dz, false,false,false)
+                SetEntityRotation(STATE.prop, rx, ATTACH_ROT_Y, rz, 2, true)
+              end
+            end
+          else
+            attachToBoneCached(ped, STATE.prop, boneIndex, posComp.x, posComp.y, posComp.z, rx, ATTACH_ROT_Y, rz)
+          end
+          STATE._apYaw, STATE._apPitch = rx, rz
+          lastForcedReattach = now
+        end
       end
 
       local origin, forward
@@ -578,7 +614,7 @@ CreateThread(function()
         end
       end
 
-      if not (origin and forward) and ped and boneIndex then
+      if not (origin and forward) and ped and boneIndex and not holdAnimInterrupted then
         local pedHeading = GetEntityHeading(ped)
         local worldYaw = normdeg(pedHeading + STATE.relYaw)
         local handPos = GetWorldPositionOfEntityBone(ped, boneIndex)
@@ -593,7 +629,7 @@ CreateThread(function()
       end
 
       if origin and forward then
-        if STATE.lightOn then
+        if STATE.lightOn and not holdLightSuppressed then
           drawBeam(origin, forward)
         end
 
@@ -794,13 +830,13 @@ RegisterNetEvent('davedev_flashlite:client:BeamState', function(src, isOn)
 end)
 
 local function startHoldAnim(ped)
-  ensureAnim(HOLD_ANIM_DICT)
-  TaskPlayAnim(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 2.0, -2.0, -1, 51, 0.0, false, false, false)
-  STATE.animPlaying = true
+  playHoldAnim(ped)
 end
 local function stopHoldAnim(ped)
   if STATE.animPlaying then StopAnimTask(ped, HOLD_ANIM_DICT, HOLD_ANIM_NAME, 1.0) end
   STATE.animPlaying=false
+  STATE.holdAnimLostAt=0
+  STATE.holdAnimLightReadyAt=0
 end
 
 local deactivateFlashlight
@@ -959,6 +995,8 @@ local function hardCleanup(reason)
   STATE.lastOrigin, STATE.lastDir = nil, nil
   STATE.active=false; STATE.busy=false; STATE.aim=false
   STATE.animPlaying=false
+  STATE.holdAnimLostAt=0
+  STATE.holdAnimLightReadyAt=0
   STATE._apYaw=nil; STATE._apPitch=nil
   STATE._lastNet=nil
   STATE.lastUsePayload=nil
@@ -1065,6 +1103,8 @@ AddEventHandler('onResourceStart', function(res)
   STATE.prev.canUseWeapons=nil
   STATE._lastNet=nil
   STATE.animPlaying=false
+  STATE.holdAnimLostAt=0
+  STATE.holdAnimLightReadyAt=0
   STATE.lightOn=false
   STATE.lastAnimCheck=0
   STATE.lastControlCheck=0
