@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'DaveDev'
 description "DaveDev's Immersive Flashlite - standalone flashlight"
-version '1.0.0'
+version '1.0.1'
 
 shared_scripts {
   'config.lua'
@@ -32,9 +32,3 @@ files {
 }
 
 data_file 'DLC_ITYP_REQUEST' 'stream/flashlight_corona_prop.ytyp'
-
-escrow_ignore {
-  'config.lua',
-  'client/modules/*.lua',
-  'README.md'
-}
