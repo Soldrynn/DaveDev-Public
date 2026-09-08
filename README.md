@@ -1,61 +1,36 @@
-# DaveDev's Immersive Flashlite
+# DaveDev Public
 
-DaveDev's Immersive Flashlite is a free standalone FiveM flashlight resource with smooth aiming, synced beam visuals, native on/off audio, and a small configuration surface.
+Free, source-available FiveM resources by DaveDev. Each resource lives in its own folder with
+its own `README.md` and its own `LICENSE.md`; there is no blanket license for this repository,
+so please read the one that ships with the resource you're using.
 
-Flashlite is built for servers that want a simple command/keybind flashlight without framework, inventory, NUI, or external audio dependencies.
+| Resource | What it is | License |
+| --- | --- | --- |
+| [`DaveDev_Flashlite`](DaveDev_Flashlite) | A standalone flashlight with smooth aiming, synced beam visuals and native audio cues. No framework, inventory or NUI needed. | [DaveDev Flashlite Public Source License](DaveDev_Flashlite/LICENSE.md) |
+| [`DaveDev_SFX`](DaveDev_SFX) | A small shared sound player that DaveDev resources depend on. Plays each resource's own audio, and doubles as an `interact-sound` replacement. | [DaveDev SFX Public Source License](DaveDev_SFX/LICENSE.md) |
 
-## Features
+## Install
 
-- Standalone `/flashlite` equip and put-away command
-- FiveM keybind support, default `O`
-- Separate beam toggle, default middle mouse
-- Smooth camera-driven beam aiming
-- Adjustable beam spread while equipped
-- Nearby-player visual sync
-- Native GTA audio cues for beam on/off
-- Streamed flashlight animation and corona prop
-- Strict, readable config focused on controls, light tuning, audio cues, and performance
-
-## Installation
-
-1. Place `DaveDev_Flashlite` in your resources folder.
-2. Add this to your server config:
+Download or clone the repository and copy the folder you want into your resources, then
+`ensure` it in your server config. Each resource's README covers the details.
 
 ```cfg
+ensure DaveDev_SFX
 ensure DaveDev_Flashlite
 ```
 
-No framework, inventory, item setup, NUI, or external audio resource is required.
+## Paid resources
 
-## Controls
+The expanded versions live on the DaveDev store: https://davedev.tebex.io/
 
-- `/flashlite` equips or puts away the flashlight.
-- `O` equips or puts away the flashlight by default.
-- `/flashlite_toggle` toggles the beam while equipped.
-- Middle mouse toggles the beam by default.
-- Hold aim while equipped to steer the beam.
-- Use the configured cone controls while equipped to adjust light spread.
+"DaveDev Immersive Flashlight" is the full flashlight with framework and inventory support,
+battery simulation, quick-holster, bundled SFX and support tooling. It uses `DaveDev_SFX` for
+its audio, so the copy here is the same one that ships with it.
 
-Keybinds can be changed through FiveM key bindings after the resource has started.
+## Contributing
 
-## Configuration
-
-Edit `config.lua` for:
-
-- command names and keybind defaults
-- light color, distance, brightness, radius, falloff, and tuning range
-- native local on/off audio cue names
-- sync interval, remote draw distance, smoothing, and corona limits
-
-Flashlite intentionally does not include framework hooks, inventory hooks, usable-item registration, public exports, custom bridge files, NUI audio, bundled SFX files, or holster sounds.
-
-## Expanded Version
-
-"DaveDev Immersive Flashlight" ([DaveDev Store Link](https://davedev.tebex.io/package/immersive-flashlight)) is the expanded version for servers that need framework support, inventory item use, custom bridges, public APIs, advanced integrations, bundled SFX, and support tooling.
-
-## License
-
-DaveDev's Immersive Flashlite is released under the included [DaveDev Flashlite Public Source License](LICENSE.md). You may use and privately modify it for your own server, but redistribution, resale, reuploading, commercial bundles, competing resource forks, branding removal, and asset/code extraction are not permitted.
+Bug reports and pull requests are welcome through GitHub. Public forks are for review and
+contribution only; the licenses explain what can and can't be redistributed.
 
 ## Support
 

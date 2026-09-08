@@ -1,19 +1,19 @@
-# DaveDev Flashlite Public Source License
+# DaveDev SFX Public Source License
 
 Copyright (c) 2026 DaveDev. All rights reserved.
 
-This license applies to DaveDev's Immersive Flashlite, including the `DaveDev_Flashlite` resource folder, source code, configuration files, models, animations, documentation, metadata, and any bundled packaging files. The source is provided for transparency, learning, server use, and private modification under the terms below.
+This license applies to DaveDev SFX, including the `DaveDev_SFX` resource folder, source code, configuration files, the NUI page, documentation, metadata, and any bundled packaging files. The source is provided for transparency, learning, server use, and private modification under the terms below.
 
 By downloading, installing, copying, editing, or using this resource, you agree to this license.
 
 ## 1. Definitions
 
-- "Resource" means DaveDev's Immersive Flashlite and all files distributed with it.
+- "Resource" means DaveDev SFX and all files distributed with it.
 - "You" means any person, server owner, developer, community, business, or other entity using the Resource.
 - "Private Server Use" means use on FiveM servers that you own, operate, administer, or develop for.
 - "Modification" means any change to the Resource, including source code edits, configuration changes, translations, forks, ports, renamed copies, merged copies, or derivative works.
 - "Redistribution" means sharing, uploading, publishing, mirroring, reselling, sublicensing, bundling, transferring, or making the Resource or any Modification available to another person or server outside your own Private Server Use.
-- "Competing Resource" means any standalone flashlight, light, illumination, evidence-light, torch, or similar FiveM/GTA resource, product, script, package, or feature set that replaces or substantially reproduces DaveDev Flashlite or DaveDev Flashlight.
+- "Competing Resource" means any standalone sound player, audio bridge, or interact-sound compatible FiveM/GTA resource, product, script, package, or feature set that replaces or substantially reproduces DaveDev SFX.
 
 ## 2. License Grant
 
@@ -64,11 +64,11 @@ If DaveDev publishes the Resource in a public repository, you may use platform-n
 
 DaveDev may accept, reject, modify, relicense, or incorporate contributed suggestions or patches at DaveDev's discretion. By submitting a contribution to DaveDev, you grant DaveDev a perpetual, worldwide, royalty-free right to use, modify, distribute, sublicense, and commercialize that contribution in DaveDev products and services.
 
-## 6. Full Product Separation
+## 6. Product Separation
 
-This license applies only to DaveDev's Immersive Flashlite. It does not grant any rights to DaveDev's full Flashlight resource or other DaveDev products, including framework support, inventory support, custom bridges, public APIs, bundled SFX, advanced integrations, support tooling, future updates, or private assets.
+This license applies only to DaveDev SFX. It does not grant any rights to the DaveDev resources that use it, including DaveDev Flashlight, DaveDev Dumpsters, or any other DaveDev product, each of which carries its own license. Sound files that ship inside another resource's `sounds/` folder belong to that resource and its license, not to this one, even when DaveDev SFX plays them.
 
-Flashlite may not be used as a public replacement or derivative release of any other DaveDev product.
+DaveDev SFX may be included, unmodified and with this license intact, alongside a DaveDev product that depends on it. That inclusion does not change the license of either resource.
 
 ## 7. Server Developer And Contractor Use
 
