@@ -7,7 +7,7 @@ so please read the one that ships with the resource you're using.
 | Resource | What it is | License |
 | --- | --- | --- |
 | [`DaveDev_Flashlite`](DaveDev_Flashlite) | A standalone flashlight with smooth aiming, synced beam visuals and native audio cues. No framework, inventory or NUI needed. | [DaveDev Flashlite Public Source License](DaveDev_Flashlite/LICENSE.md) |
-| [`DaveDev_SFX`](DaveDev_SFX) | A small shared sound player that DaveDev resources depend on. Plays each resource's own audio, and doubles as an `interact-sound` replacement. | [DaveDev SFX Public Source License](DaveDev_SFX/LICENSE.md) |
+| [`DaveDev_SFX`](DaveDev_SFX) | A small shared sound player that DaveDev resources can use in place of `interact-sound` or `xsound`. Plays each resource's own audio. | [DaveDev SFX Public Source License](DaveDev_SFX/LICENSE.md) |
 
 ## Install
 
